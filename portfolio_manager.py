@@ -404,6 +404,15 @@ def manage_skills(soup):
         new_name = simpledialog.askstring("Editar", "Nombre:", initialvalue=chip.get_text(strip=True))
         if new_name:
             new_desc = simpledialog.askstring("Editar", "Descripción:", initialvalue=chip.get('data-desc', ''))
+            
+            # Opción de cambiar imagen
+            if messagebox.askyesno("Imagen", "¿Cambiar imagen?"):
+                img_path = filedialog.askopenfilename(title="Selecciona nueva imagen")
+                if img_path:
+                    new_img = handle_image(img_path)
+                    if new_img:
+                        chip['data-img'] = new_img
+            
             chip.string = new_name
             chip['title'] = new_name
             chip['data-desc'] = new_desc or ""
