@@ -1,0 +1,17 @@
+Iniciando test...
+Test 1: Importar BeautifulSoup
+✓ BeautifulSoup OK
+Test 2: Importar PySimpleGUI
+✓ PySimpleGUI OK
+Test 3: Importar portfolio_manager
+✓ portfolio_manager OK
+Test 4: Llamar main()
+❌ ERROR: 'NoneType' object is not callable
+Traceback (most recent call last):
+  File "C:\Users\davir\OneDrive\Documentos\cosas david\portafolio\marquistallman.github.io\test_runner.py", line 31, in <module>
+    portfolio_manager.main()
+    ~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\davir\OneDrive\Documentos\cosas david\portafolio\marquistallman.github.io\portfolio_manager.py", line 407, in main
+    [sg.Text("PORTFOLIO MANAGER v2 🛠️", font=("Helvetica", 20), justification="center")],
+     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: 'NoneType' object is not callable
