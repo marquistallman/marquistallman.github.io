@@ -1,0 +1,83 @@
+{
+  "header": {
+    "name": "David Ricardo Nuñez",
+    "subtitle": "Developer • Blockchain • Tools & Art",
+    "avatar": "img/img1.jpeg"
+  },
+  "hero": {
+    "title": "I'm a real tool maker and artist",
+    "description": "Minecraft Launcher, a file blockchain, tools on Python and art proyects. Repos in",
+    "githubUrl": "https://github.com/marquistallman",
+    "email": "daviricanun@gmail.com",
+    "image": "img/img7.jpeg"
+  },
+  "projects": [
+    {
+      "id": 1,
+      "title": "Minecraft Launcher (Python)",
+      "description": "Minecraft Launcher with version installer (Vanilla, Forge, Fabric), porfiles and version manager.",
+      "tags": "Python, UI, installer",
+      "image": "img/img4.jpeg",
+      "repo": "https://github.com/marquistallman/OpenLauncherProyect.git",
+      "demo": ""
+    },
+    {
+      "id": 2,
+      "title": "A File Blockchain (C#)",
+      "description": "This block chain encrypts, saves and restores files, splits the logic betwen users and miners.",
+      "tags": "C#, criptography, networks",
+      "image": "img/img2.jpg",
+      "repo": "https://github.com/marquistallman/OpenCloudProyect",
+      "demo": ""
+    },
+    {
+      "id": 3,
+      "title": "Pixel-Kinesis (Java)",
+      "description": "Planed to be the LaTex for Grafics and animations.",
+      "tags": "Java, Grafics, Animations",
+      "image": "img/img5.png",
+      "repo": "https://github.com/marquistallman/-Pixel-Kinesis.git",
+      "demo": ""
+    },
+    {
+      "id": 4,
+      "title": "Persepolis",
+      "description": "Buscador Web especializado en wallpapers que scrapea en mas de 9 sitios diferentes",
+      "tags": "Java, Springboot, AI, Linux",
+      "image": "img/persepolis.png",
+      "repo": "https://github.com/marquistallman/Persepolis.git",
+      "demo": "https://persepoliasia.lat/Pages/browse.html"
+    },
+    {
+      "id": 5,
+      "title": "Doesn't Break Things (DBT)",
+      "description": "Sistema basado en Claude Code para uso de modelos locales, fuertemente apoyado en ollama",
+      "tags": "C#, IA, API, ollama",
+      "image": "img/ollama-tool.png",
+      "repo": "https://github.com/marquistallman/Doesn-t-Break-Things.git",
+      "demo": ""
+    }
+  ],
+  "about": {
+    "bio": "I'm Systems Engeniering student with experience working on python and C#. I like to create solutions, and for that I manage from arquitecture to package and installers. Code is not an art, but the art can be made by code.",
+    "name": "David Ricardo Núñez Bernal",
+    "email": "daviricanun@gmail.com",
+    "social": "@marquistallman",
+    "searching": "Learn about code models, IA, and real life aplication problems."
+  },
+  "skills": [
+    { "name": "Python",            "desc": "Projects, automation and data tools.",      "img": "img/images.png"      },
+    { "name": "Vibe Code",         "desc": "Personal tooling and creative experiments.", "img": "img/vibeCode.jpg"    },
+    { "name": "Linux / CLI",       "desc": "Shell scripts, servers and CLI workflows.", "img": "img/Linux.jpg"       },
+    { "name": "Git & GitHub",      "desc": "Version control, CI and repo management.",  "img": "img/github.png"      },
+    { "name": "UI",                "desc": "GUI apps and custom widgets.",               "img": "img/UI.jpg"          },
+    { "name": "criptography basic","desc": "Hashes, AES and basic encryption.",          "img": "img/criptografia.jpg"},
+    { "name": "C#",                "desc": ".Net Language used in mobile and games",    "img": "img/images.jpg"      },
+    { "name": "Java",              "desc": "Code once, run everywhere",                  "img": "img/java.png"        }
+  ],
+  "contact": [
+    { "label": "📧 daviricanun@gmail.com",    "href": "mailto:daviricanun@gmail.com"          },
+    { "label": "🐙 GitHub /marquistallman",   "href": "https://github.com/marquistallman"     },
+    { "label": "💬 Discord: marquistallman",  "href": "https://discord.com/users/marquistallman" }
+  ]
+}

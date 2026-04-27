@@ -1,622 +1,341 @@
-import os
+﻿import os
+import json
 import shutil
-import sys
 import re
 import tkinter as tk
 from tkinter import filedialog, messagebox, simpledialog, colorchooser
-from bs4 import BeautifulSoup
 
-# --- CONSTANTS AND SETUP ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-HTML_FILE = os.path.join(BASE_DIR, "index.html")
-IMG_FOLDER = os.path.join(BASE_DIR, "img")
-CSS_FILE = os.path.join(BASE_DIR, "style.css")
+# --- CONSTANTS ---
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+DATA_FILE = os.path.join(BASE_DIR, "src", "data", "portfolio.json")
+CSS_FILE  = os.path.join(BASE_DIR, "src", "index.css")
+IMG_FOLDER = os.path.join(BASE_DIR, "public", "img")
 
-# --- CORE HELPER FUNCTIONS ---
+# --- HELPERS ---
 
-def load_soup():
-    """Loads and parses the index.html file."""
-    if not os.path.exists(HTML_FILE):
-        messagebox.showerror("Error", f"❌ No se encuentra el archivo principal:\n{HTML_FILE}")
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        messagebox.showerror("Error", f"No se encuentra:\n{DATA_FILE}")
         return None
-    with open(HTML_FILE, "r", encoding="utf-8") as f:
-        return BeautifulSoup(f, "html.parser")
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def save_soup(soup):
-    """Saves the BeautifulSoup object back to the HTML file."""
-    with open(HTML_FILE, "w", encoding="utf-8") as f:
-        f.write(soup.prettify())
-    messagebox.showinfo("✅ Éxito", "Cambios guardados exitosamente.")
+def save_data(data):
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    messagebox.showinfo("Exito", "Cambios guardados.")
 
 def handle_image(img_path_input):
-    """Copies an image to the project's img folder and returns its relative path."""
-    src_path = img_path_input.strip('"').strip("'")
-    if not src_path:
+    src = img_path_input.strip('"').strip("'")
+    if not src or not os.path.exists(src):
+        messagebox.showwarning("Aviso", f"Imagen no encontrada:\n{src}")
         return None
-
-    if not os.path.exists(src_path):
-        messagebox.showwarning("Aviso", f"⚠️ Imagen no encontrada:\n{src_path}")
-        return None
-
-    filename = os.path.basename(src_path)
-    dest_path = os.path.join(IMG_FOLDER, filename)
-
-    if not os.path.exists(IMG_FOLDER):
-        os.makedirs(IMG_FOLDER)
-
+    os.makedirs(IMG_FOLDER, exist_ok=True)
+    filename = os.path.basename(src)
+    dest = os.path.join(IMG_FOLDER, filename)
     try:
-        shutil.copy(src_path, dest_path)
+        shutil.copy(src, dest)
         return f"img/{filename}"
     except Exception as e:
-        messagebox.showerror("Error", f"Error al copiar la imagen:\n{e}")
+        messagebox.showerror("Error", f"No se pudo copiar la imagen:\n{e}")
         return None
 
-# --- GESTIÓN DE PROYECTOS ---
+# --- PROJECTS ---
 
-def add_project(soup, container, parent_window=None):
-    """Add a new project with GUI dialog."""
-    form = tk.Toplevel()
-    form.title("Agregar Nuevo Proyecto")
-    form.geometry("600x500")
-    
-    # Title
-    tk.Label(form, text="Título:").pack()
-    title_entry = tk.Entry(form, width=50)
-    title_entry.pack(padx=10, pady=5)
-    
-    # Description
-    tk.Label(form, text="Descripción:").pack()
-    desc_entry = tk.Entry(form, width=50)
-    desc_entry.pack(padx=10, pady=5)
-    
-    # Tags
-    tk.Label(form, text="Tags:").pack()
-    tags_entry = tk.Entry(form, width=50)
-    tags_entry.pack(padx=10, pady=5)
-    
-    # Image
-    tk.Label(form, text="Ruta Imagen:").pack()
-    img_entry = tk.Entry(form, width=50)
-    img_entry.pack(padx=10, pady=5)
-    
-    # Repo
-    tk.Label(form, text="Link Repo:").pack()
-    repo_entry = tk.Entry(form, width=50)
-    repo_entry.pack(padx=10, pady=5)
-    
-    # Demo
-    tk.Label(form, text="Link Demo:").pack()
-    demo_entry = tk.Entry(form, width=50)
-    demo_entry.pack(padx=10, pady=5)
-    
-    def save_project():
-        title = title_entry.get().strip()
-        if not title:
-            messagebox.showerror("Error", "El título es obligatorio.")
-            return
-        
-        desc = desc_entry.get().strip()
-        tags = tags_entry.get().strip()
-        img_path = img_entry.get().strip()
-        repo = repo_entry.get().strip()
-        demo = demo_entry.get().strip()
-        
-        img_src = handle_image(img_path) if img_path else "https://via.placeholder.com/300"
-        
-        article = soup.new_tag("article", attrs={"class": "card"})
-        
-        img = soup.new_tag("img", src=img_src, alt=title, attrs={"class": "card-img"})
-        article.append(img)
-        
-        body = soup.new_tag("div", attrs={"class": "card-body"})
-        h4 = soup.new_tag("h4")
-        h4.string = title
-        body.append(h4)
-        
-        p = soup.new_tag("p")
-        p.string = desc
-        body.append(p)
-        
-        ptags = soup.new_tag("p", attrs={"class": "muted small"})
-        ptags.string = tags
-        body.append(ptags)
-        
-        actions = soup.new_tag("div", attrs={"class": "card-actions"})
-        if repo:
-            a = soup.new_tag("a", href=repo, target="_blank")
-            a.string = "Repo"
-            actions.append(a)
-        if demo:
-            a = soup.new_tag("a", href=demo, target="_blank")
-            a.string = "Demo"
-            actions.append(a)
-        
-        body.append(actions)
-        article.append(body)
-        container.append(article)
-        save_soup(soup)
-        messagebox.showinfo("✅", "Proyecto agregado.")
-        form.destroy()
-    
-    tk.Button(form, text="Guardar", command=save_project).pack(pady=5)
-    tk.Button(form, text="Cancelar", command=form.destroy).pack(pady=5)
-
-def edit_project(soup, project, parent_window=None):
-    """Edit an existing project."""
-    form = tk.Toplevel()
-    form.title("Editar Proyecto")
-    form.geometry("600x500")
-    
-    h4 = project.find("h4")
-    curr_title = h4.get_text(strip=True) if h4 else ""
-    
-    p_desc = project.find("p")
-    curr_desc = p_desc.get_text(strip=True) if p_desc else ""
-    
-    p_tags = project.find("p", class_="muted")
-    curr_tags = p_tags.get_text(strip=True) if p_tags else ""
-    
-    img = project.find("img")
-    curr_img = img['src'] if img else ""
-    
-    actions = project.find("div", class_="card-actions")
-    links = actions.find_all("a") if actions else []
-    curr_repo = links[0]['href'] if len(links) > 0 else ""
-    curr_demo = links[1]['href'] if len(links) > 1 else ""
-    
-    tk.Label(form, text="Título:").pack()
-    title_entry = tk.Entry(form, width=50)
-    title_entry.insert(0, curr_title)
-    title_entry.pack(padx=10, pady=5)
-    
-    tk.Label(form, text="Descripción:").pack()
-    desc_entry = tk.Entry(form, width=50)
-    desc_entry.insert(0, curr_desc)
-    desc_entry.pack(padx=10, pady=5)
-    
-    tk.Label(form, text="Tags:").pack()
-    tags_entry = tk.Entry(form, width=50)
-    tags_entry.insert(0, curr_tags)
-    tags_entry.pack(padx=10, pady=5)
-    
-    tk.Label(form, text="Link Repo:").pack()
-    repo_entry = tk.Entry(form, width=50)
-    repo_entry.insert(0, curr_repo)
-    repo_entry.pack(padx=10, pady=5)
-    
-    tk.Label(form, text="Link Demo:").pack()
-    demo_entry = tk.Entry(form, width=50)
-    demo_entry.insert(0, curr_demo)
-    demo_entry.pack(padx=10, pady=5)
-    
-    tk.Label(form, text=f"Imagen actual: {curr_img}").pack()
-    
-    tk.Label(form, text="Nueva Imagen (Enter para mantener):").pack()
-    img_entry = tk.Entry(form, width=50)
-    img_entry.pack(padx=10, pady=5)
-    
-    def save_edit():
-        new_title = title_entry.get().strip()
-        new_desc = desc_entry.get().strip()
-        new_tags = tags_entry.get().strip()
-        new_repo = repo_entry.get().strip()
-        new_demo = demo_entry.get().strip()
-        new_img_path = img_entry.get().strip()
-        
-        if h4: h4.string = new_title
-        if p_desc: p_desc.string = new_desc
-        if p_tags: p_tags.string = new_tags
-        
-        if new_img_path:
-            processed = handle_image(new_img_path)
-            if processed and img: img['src'] = processed
-        
-        if actions:
-            actions.clear()
-            if new_repo:
-                a = soup.new_tag("a", href=new_repo, target="_blank")
-                a.string = "Repo"
-                actions.append(a)
-            if new_demo:
-                a = soup.new_tag("a", href=new_demo, target="_blank")
-                a.string = "Demo"
-                actions.append(a)
-        
-        save_soup(soup)
-        messagebox.showinfo("✅", "Proyecto actualizado.")
-        form.destroy()
-    
-    tk.Button(form, text="Guardar", command=save_edit).pack(pady=5)
-    tk.Button(form, text="Cancelar", command=form.destroy).pack(pady=5)
-
-def manage_projects(soup):
-    """Manage projects with GUI."""
+def manage_projects(data):
     root = tk.Tk()
     root.title("Gestionar Proyectos")
     root.geometry("700x600")
-    
     tk.Label(root, text="Gestionar Proyectos", font=("Arial", 16)).pack(pady=10)
-    
-    container = soup.find(id="projects-list")
-    if not container:
-        messagebox.showerror("Error", "No se encontró el contenedor #projects-list")
-        root.destroy()
-        return
-    
-    # Listbox
+    projects = data["projects"]
     frame = tk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-    
     listbox = tk.Listbox(frame)
     listbox.pack(fill=tk.BOTH, expand=True)
-    
-    def refresh_list():
+
+    def refresh():
         listbox.delete(0, tk.END)
-        projects = container.find_all("article", class_="card")
         for p in projects:
-            t = p.find("h4").get_text(strip=True) if p.find("h4") else "Sin título"
-            listbox.insert(tk.END, t)
-    
-    refresh_list()
-    
-    def add():
-        add_project(soup, container, root)
-        refresh_list()
-    
+            listbox.insert(tk.END, p.get("title", "Sin titulo"))
+
+    def open_form(project=None):
+        form = tk.Toplevel()
+        form.title("Proyecto")
+        form.geometry("600x520")
+        fields = [
+            ("Titulo",       "title",       ""),
+            ("Descripcion",  "description", ""),
+            ("Tags",         "tags",        ""),
+            ("Ruta Imagen",  "image",       ""),
+            ("Link Repo",    "repo",        ""),
+            ("Link Demo",    "demo",        ""),
+        ]
+        entries = {}
+        for label, key, default in fields:
+            tk.Label(form, text=f"{label}:").pack()
+            e = tk.Entry(form, width=60)
+            e.insert(0, project.get(key, default) if project else default)
+            e.pack(padx=10, pady=3)
+            entries[key] = e
+
+        def save():
+            title = entries["title"].get().strip()
+            if not title:
+                messagebox.showerror("Error", "El titulo es obligatorio.")
+                return
+            img_input = entries["image"].get().strip()
+            img_src = img_input
+            if img_input and not img_input.startswith("img/") and os.path.exists(img_input):
+                copied = handle_image(img_input)
+                if copied:
+                    img_src = copied
+            entry = {
+                "id":          project["id"] if project else (max((p["id"] for p in projects), default=0) + 1),
+                "title":       title,
+                "description": entries["description"].get().strip(),
+                "tags":        entries["tags"].get().strip(),
+                "image":       img_src,
+                "repo":        entries["repo"].get().strip(),
+                "demo":        entries["demo"].get().strip(),
+            }
+            if project:
+                idx = next(i for i, p in enumerate(projects) if p["id"] == project["id"])
+                projects[idx] = entry
+            else:
+                projects.append(entry)
+            save_data(data)
+            refresh()
+            form.destroy()
+
+        tk.Button(form, text="Guardar",  command=save).pack(pady=5)
+        tk.Button(form, text="Cancelar", command=form.destroy).pack()
+
+    def add():   open_form()
     def edit():
         sel = listbox.curselection()
-        if not sel:
-            messagebox.showerror("Error", "Selecciona un proyecto")
-            return
-        idx = sel[0]
-        projects = container.find_all("article", class_="card")
-        edit_project(soup, projects[idx], root)
-        refresh_list()
-    
+        if not sel: messagebox.showerror("Error", "Selecciona un proyecto"); return
+        open_form(projects[sel[0]])
     def delete():
         sel = listbox.curselection()
-        if not sel:
-            messagebox.showerror("Error", "Selecciona un proyecto")
-            return
-        if messagebox.askyesno("Confirmar", "¿Borrar proyecto?"):
-            idx = sel[0]
-            projects = container.find_all("article", class_="card")
-            projects[idx].decompose()
-            save_soup(soup)
-            refresh_list()
-    
+        if not sel: messagebox.showerror("Error", "Selecciona un proyecto"); return
+        if messagebox.askyesno("Confirmar", "Borrar proyecto?"):
+            projects.pop(sel[0]); save_data(data); refresh()
+
+    refresh()
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=10)
     tk.Button(btn_frame, text="Agregar", command=add).pack(side=tk.LEFT, padx=5)
-    tk.Button(btn_frame, text="Editar", command=edit).pack(side=tk.LEFT, padx=5)
-    tk.Button(btn_frame, text="Borrar", command=delete).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Editar",  command=edit).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Borrar",  command=delete).pack(side=tk.LEFT, padx=5)
     tk.Button(root, text="Cerrar", command=root.destroy).pack(pady=10)
-    
     root.mainloop()
 
-# --- GESTIÓN GENERAL ---
+# --- GENERAL ---
 
-def manage_general(soup):
-    """Edit general website texts."""
+def manage_general(data):
     root = tk.Tk()
     root.title("Editar Textos Generales")
-    root.geometry("600x500")
-    
+    root.geometry("600x520")
     tk.Label(root, text="Editar Textos Generales", font=("Arial", 16)).pack(pady=10)
-    
-    h1 = soup.select_one(".brand h1")
-    sub = soup.select_one(".brand .muted")
-    hero_h2 = soup.select_one(".hero h2")
-    about_p = soup.select_one(".about-card p")
-    
-    tk.Label(root, text="Nombre (Header):").pack()
-    h1_entry = tk.Entry(root, width=50)
-    h1_entry.insert(0, h1.get_text(strip=True) if h1 else "")
-    h1_entry.pack(pady=5)
-    
-    tk.Label(root, text="Subtítulo:").pack()
-    sub_entry = tk.Entry(root, width=50)
-    sub_entry.insert(0, sub.get_text(strip=True) if sub else "")
-    sub_entry.pack(pady=5)
-    
-    tk.Label(root, text="Título Hero:").pack()
-    hero_entry = tk.Entry(root, width=50)
-    hero_entry.insert(0, hero_h2.get_text(strip=True) if hero_h2 else "")
-    hero_entry.pack(pady=5)
-    
-    tk.Label(root, text="Sobre mí (Texto):").pack()
-    about_text = tk.Text(root, height=6, width=50)
-    about_text.insert(1.0, about_p.get_text(strip=True) if about_p else "")
-    about_text.pack(pady=5)
-    
+    h = data["header"]; hero = data["hero"]; about = data["about"]
+    fields = [
+        ("Nombre (Header)",  h,     "name"),
+        ("Subtitulo",        h,     "subtitle"),
+        ("Avatar (img/...)", h,     "avatar"),
+        ("Titulo Hero",      hero,  "title"),
+        ("GitHub URL",       hero,  "githubUrl"),
+        ("Email",            hero,  "email"),
+        ("Imagen Hero",      hero,  "image"),
+    ]
+    entries = []
+    for label, obj, key in fields:
+        tk.Label(root, text=f"{label}:").pack()
+        e = tk.Entry(root, width=60)
+        e.insert(0, obj.get(key, ""))
+        e.pack(padx=10, pady=3)
+        entries.append((obj, key, e))
+    tk.Label(root, text="Sobre mi:").pack()
+    about_text = tk.Text(root, height=5, width=60)
+    about_text.insert(1.0, about.get("bio", ""))
+    about_text.pack(padx=10, pady=3)
     def save():
-        if h1: h1.string = h1_entry.get().strip()
-        if sub: sub.string = sub_entry.get().strip()
-        if hero_h2: hero_h2.string = hero_entry.get().strip()
-        if about_p: about_p.string = about_text.get(1.0, tk.END).strip()
-        save_soup(soup)
-        root.destroy()
-    
-    tk.Button(root, text="Guardar", command=save).pack(pady=10)
+        for obj, key, e in entries: obj[key] = e.get().strip()
+        about["bio"] = about_text.get(1.0, tk.END).strip()
+        save_data(data); root.destroy()
+    tk.Button(root, text="Guardar",  command=save).pack(pady=10)
     tk.Button(root, text="Cancelar", command=root.destroy).pack()
-    
     root.mainloop()
 
-# --- GESTIÓN SKILLS ---
+# --- SKILLS ---
 
-def manage_skills(soup):
-    """Manage skills with GUI."""
+def manage_skills(data):
     root = tk.Tk()
     root.title("Gestionar Skills")
     root.geometry("600x500")
-    
     tk.Label(root, text="Gestionar Skills", font=("Arial", 16)).pack(pady=10)
-    
-    container = soup.select_one(".chips")
-    if not container:
-        messagebox.showerror("Error", "No se encontró el contenedor .chips")
-        root.destroy()
-        return
-    
-    # Listbox
+    skills = data["skills"]
     frame = tk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-    
     listbox = tk.Listbox(frame)
     listbox.pack(fill=tk.BOTH, expand=True)
-    
-    def refresh_list():
+
+    def refresh():
         listbox.delete(0, tk.END)
-        skills = container.find_all("span", class_="chip")
-        for s in skills:
-            listbox.insert(tk.END, s.get_text(strip=True))
-    
-    refresh_list()
-    
+        for s in skills: listbox.insert(tk.END, s.get("name", ""))
+
     def add():
-        name = simpledialog.askstring("Nueva Skill", "Nombre de la skill:")
-        if name:
-            desc = simpledialog.askstring("Nueva Skill", "Descripción:")
-            img_path = filedialog.askopenfilename(title="Selecciona imagen")
-            
-            processed_img = handle_image(img_path) if img_path else "https://via.placeholder.com/320x180"
-            
-            span = soup.new_tag("span", attrs={
-                "class": "chip",
-                "data-img": processed_img,
-                "data-desc": desc or "",
-                "title": name
-            })
-            span.string = name
-            container.append(span)
-            save_soup(soup)
-            refresh_list()
-    
+        name = simpledialog.askstring("Nueva Skill", "Nombre:"); 
+        if not name: return
+        desc = simpledialog.askstring("Nueva Skill", "Descripcion:") or ""
+        img_path = filedialog.askopenfilename(title="Selecciona imagen")
+        img_src = handle_image(img_path) if img_path else ""
+        skills.append({"name": name, "desc": desc, "img": img_src or ""})
+        save_data(data); refresh()
+
     def edit():
         sel = listbox.curselection()
-        if not sel:
-            messagebox.showerror("Error", "Selecciona una skill")
-            return
-        idx = sel[0]
-        skills = container.find_all("span", class_="chip")
-        chip = skills[idx]
-        
-        new_name = simpledialog.askstring("Editar", "Nombre:", initialvalue=chip.get_text(strip=True))
-        if new_name:
-            new_desc = simpledialog.askstring("Editar", "Descripción:", initialvalue=chip.get('data-desc', ''))
-            
-            # Opción de cambiar imagen
-            if messagebox.askyesno("Imagen", "¿Cambiar imagen?"):
-                img_path = filedialog.askopenfilename(title="Selecciona nueva imagen")
-                if img_path:
-                    new_img = handle_image(img_path)
-                    if new_img:
-                        chip['data-img'] = new_img
-            
-            chip.string = new_name
-            chip['title'] = new_name
-            chip['data-desc'] = new_desc or ""
-            save_soup(soup)
-            refresh_list()
-    
+        if not sel: messagebox.showerror("Error", "Selecciona una skill"); return
+        s = skills[sel[0]]
+        new_name = simpledialog.askstring("Editar", "Nombre:", initialvalue=s.get("name", ""))
+        if not new_name: return
+        new_desc = simpledialog.askstring("Editar", "Descripcion:", initialvalue=s.get("desc", "")) or ""
+        if messagebox.askyesno("Imagen", "Cambiar imagen?"):
+            img_path = filedialog.askopenfilename(title="Selecciona imagen")
+            if img_path:
+                copied = handle_image(img_path)
+                if copied: s["img"] = copied
+        s["name"] = new_name; s["desc"] = new_desc
+        save_data(data); refresh()
+
     def delete():
         sel = listbox.curselection()
-        if not sel:
-            messagebox.showerror("Error", "Selecciona una skill")
-            return
-        if messagebox.askyesno("Confirmar", "¿Borrar skill?"):
-            idx = sel[0]
-            skills = container.find_all("span", class_="chip")
-            skills[idx].decompose()
-            save_soup(soup)
-            refresh_list()
-    
+        if not sel: messagebox.showerror("Error", "Selecciona una skill"); return
+        if messagebox.askyesno("Confirmar", "Borrar skill?"):
+            skills.pop(sel[0]); save_data(data); refresh()
+
+    refresh()
     btn_frame = tk.Frame(root)
     btn_frame.pack(pady=10)
     tk.Button(btn_frame, text="Agregar", command=add).pack(side=tk.LEFT, padx=5)
-    tk.Button(btn_frame, text="Editar", command=edit).pack(side=tk.LEFT, padx=5)
-    tk.Button(btn_frame, text="Borrar", command=delete).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Editar",  command=edit).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Borrar",  command=delete).pack(side=tk.LEFT, padx=5)
     tk.Button(root, text="Cerrar", command=root.destroy).pack(pady=10)
-    
     root.mainloop()
 
-# --- GESTIÓN CONTACTO ---
+# --- CONTACT ---
 
-def manage_contact(soup):
-    """Manage contact links with GUI."""
+def manage_contact(data):
     root = tk.Tk()
     root.title("Gestionar Contacto")
     root.geometry("600x400")
-    
     tk.Label(root, text="Gestionar Contacto", font=("Arial", 16)).pack(pady=10)
-    
-    cards = soup.select("#contact .contact-card")
-    if not cards:
-        messagebox.showerror("Error", "No se encontraron links de contacto")
-        root.destroy()
-        return
-    
-    # Listbox
+    contacts = data["contact"]
     frame = tk.Frame(root)
     frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-    
     listbox = tk.Listbox(frame)
     listbox.pack(fill=tk.BOTH, expand=True)
-    
-    def refresh_list():
+
+    def refresh():
         listbox.delete(0, tk.END)
-        for c in cards:
-            text = c.get_text(strip=True)
-            href = c.get('href', '')
-            listbox.insert(tk.END, f"{text} -> {href}")
-    
-    refresh_list()
-    
+        for c in contacts: listbox.insert(tk.END, f"{c.get('label','')}  ->  {c.get('href','')}")
+
     def edit():
         sel = listbox.curselection()
-        if not sel:
-            messagebox.showerror("Error", "Selecciona un contacto")
-            return
-        idx = sel[0]
-        card = cards[idx]
-        
-        curr_text = card.get_text(strip=True)
-        curr_href = card.get('href', '')
-        
-        new_text = simpledialog.askstring("Editar", "Texto visible:", initialvalue=curr_text)
-        if new_text:
-            new_href = simpledialog.askstring("Editar", "Enlace:", initialvalue=curr_href)
-            if new_href:
-                card.string = new_text
-                card['href'] = new_href
-                save_soup(soup)
-                cards = soup.select("#contact .contact-card")
-                refresh_list()
-    
-    tk.Button(root, text="Editar", command=edit).pack(pady=10)
-    tk.Button(root, text="Cerrar", command=root.destroy).pack()
-    
+        if not sel: messagebox.showerror("Error", "Selecciona un contacto"); return
+        c = contacts[sel[0]]
+        new_label = simpledialog.askstring("Editar", "Texto visible:", initialvalue=c.get("label", ""))
+        if not new_label: return
+        new_href = simpledialog.askstring("Editar", "Enlace:", initialvalue=c.get("href", "")) or ""
+        c["label"] = new_label; c["href"] = new_href
+        save_data(data); refresh()
+
+    def add():
+        label = simpledialog.askstring("Nuevo Contacto", "Texto visible:")
+        if not label: return
+        href = simpledialog.askstring("Nuevo Contacto", "Enlace:") or ""
+        contacts.append({"label": label, "href": href}); save_data(data); refresh()
+
+    def delete():
+        sel = listbox.curselection()
+        if not sel: messagebox.showerror("Error", "Selecciona un contacto"); return
+        if messagebox.askyesno("Confirmar", "Borrar?"):
+            contacts.pop(sel[0]); save_data(data); refresh()
+
+    refresh()
+    btn_frame = tk.Frame(root)
+    btn_frame.pack(pady=10)
+    tk.Button(btn_frame, text="Agregar", command=add).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Editar",  command=edit).pack(side=tk.LEFT, padx=5)
+    tk.Button(btn_frame, text="Borrar",  command=delete).pack(side=tk.LEFT, padx=5)
+    tk.Button(root, text="Cerrar", command=root.destroy).pack(pady=10)
     root.mainloop()
 
-# --- GESTIÓN COLORES ---
+# --- COLORS ---
 
 def manage_colors():
-    """Manage website color palette."""
     root = tk.Tk()
     root.title("Gestionar Colores")
-    root.geometry("500x600")
-    
+    root.geometry("500x580")
     if not os.path.exists(CSS_FILE):
-        messagebox.showerror("Error", f"No se encuentra {CSS_FILE}")
-        root.destroy()
-        return
-    
-    # Read current CSS
-    with open(CSS_FILE, "r", encoding="utf-8") as f:
-        css_content = f.read()
-    
-    # Extract color variables
-    colors = {}
-    color_pattern = r'--(\w+):\s*(#[\da-fA-F]{6}|rgba?\([^)]+\))'
-    matches = re.findall(color_pattern, css_content)
-    
-    for var_name, color_val in matches:
-        colors[var_name] = color_val
-    
+        messagebox.showerror("Error", f"No se encuentra {CSS_FILE}"); root.destroy(); return
+    with open(CSS_FILE, "r", encoding="utf-8") as f: css_content = f.read()
+    color_pattern = r"--(\w+):\s*(#[\da-fA-F]{6}|rgba?\([^)]+\))"
+    original_colors = dict(re.findall(color_pattern, css_content))
+    color_entries = dict(original_colors)
     tk.Label(root, text="Gestionar Colores", font=("Arial", 16)).pack(pady=10)
-    tk.Label(root, text="Haz clic en un color para editarlo:", font=("Arial", 10)).pack(pady=5)
-    
-    color_entries = {}
-    
-    def create_color_button(var_name, current_color):
+    for var_name, color_val in original_colors.items():
         frame = tk.Frame(root)
-        frame.pack(fill=tk.X, padx=20, pady=5)
-        
-        tk.Label(frame, text=f"--{var_name}:", width=15, anchor="w").pack(side=tk.LEFT)
-        tk.Label(frame, text=current_color, width=20, anchor="w").pack(side=tk.LEFT, padx=10)
-        
-        def pick_color():
-            # Para RGBA, usar aproximación
-            if 'rgba' in current_color:
-                initial_color = "#6dd3ff"  # Fallback a azul
-            else:
-                initial_color = current_color
-            
-            color = colorchooser.askcolor(color=initial_color)
-            if color[1]:  # Si el usuario seleccionó un color
-                color_entries[var_name] = color[1]
-                color_label.config(text=color[1])
-        
-        color_label = tk.Label(frame, text=current_color, width=10)
-        color_label.pack(side=tk.LEFT)
-        
-        tk.Button(frame, text="Cambiar", command=pick_color).pack(side=tk.LEFT, padx=5)
-        color_entries[var_name] = current_color
-    
-    for var_name, color_val in colors.items():
-        create_color_button(var_name, color_val)
-    
-    def save_colors():
-        # Reemplazar colores en el CSS
-        updated_css = css_content
-        
+        frame.pack(fill=tk.X, padx=20, pady=4)
+        tk.Label(frame, text=f"--{var_name}:", width=16, anchor="w").pack(side=tk.LEFT)
+        label = tk.Label(frame, text=color_val, width=22, anchor="w")
+        label.pack(side=tk.LEFT, padx=5)
+        def pick(v=var_name, lbl=label, cur=color_val):
+            initial = cur if cur.startswith("#") else "#6dd3ff"
+            chosen = colorchooser.askcolor(color=initial)
+            if chosen[1]: color_entries[v] = chosen[1]; lbl.config(text=chosen[1])
+        tk.Button(frame, text="Cambiar", command=pick).pack(side=tk.LEFT)
+
+    def save():
+        updated = css_content
         for var_name, new_color in color_entries.items():
-            if new_color != colors.get(var_name):
-                old_pattern = f"--{var_name}:\\s*{re.escape(colors[var_name])}"
-                updated_css = re.sub(old_pattern, f"--{var_name}: {new_color}", updated_css)
-        
-        # Guardar cambios
-        with open(CSS_FILE, "w", encoding="utf-8") as f:
-            f.write(updated_css)
-        
-        messagebox.showinfo("✅ Éxito", "Paleta de colores actualizada.\n\nRecarga el navegador para ver los cambios.")
+            if new_color != original_colors.get(var_name):
+                updated = re.sub(
+                    f"--{var_name}:\\s*{re.escape(original_colors[var_name])}",
+                    f"--{var_name}: {new_color}", updated)
+        with open(CSS_FILE, "w", encoding="utf-8") as f: f.write(updated)
+        messagebox.showinfo("Exito", "Paleta actualizada. Recarga el navegador.")
         root.destroy()
-    
-    tk.Button(root, text="Guardar Cambios", command=save_colors, bg="#6dd3ff", fg="black", font=("Arial", 12, "bold")).pack(pady=20)
-    tk.Button(root, text="Cancelar", command=root.destroy).pack(pady=5)
-    
+
+    tk.Button(root, text="Guardar Cambios", command=save,
+              bg="#6dd3ff", fg="black", font=("Arial", 12, "bold")).pack(pady=20)
+    tk.Button(root, text="Cancelar", command=root.destroy).pack()
     root.mainloop()
 
-# --- MAIN APPLICATION ---
+# --- MAIN ---
 
 def main():
-    """Main application window."""
     root = tk.Tk()
-    root.title("PORTFOLIO MANAGER v2 🛠️")
-    root.geometry("400x500")
-    
-    tk.Label(root, text="PORTFOLIO MANAGER v2 🛠️", font=("Arial", 20, "bold")).pack(pady=20)
-    
-    def btn_projects():
-        soup = load_soup()
-        if soup:
-            manage_projects(soup)
-    
-    def btn_general():
-        soup = load_soup()
-        if soup:
-            manage_general(soup)
-    
-    def btn_skills():
-        soup = load_soup()
-        if soup:
-            manage_skills(soup)
-    
-    def btn_contact():
-        soup = load_soup()
-        if soup:
-            manage_contact(soup)
-    
-    def btn_colors():
-        manage_colors()
-    
-    tk.Button(root, text="Gestionar Proyectos", width=30, height=2, command=btn_projects).pack(pady=10)
-    tk.Button(root, text="Editar Textos Generales", width=30, height=2, command=btn_general).pack(pady=10)
-    tk.Button(root, text="Gestionar Skills", width=30, height=2, command=btn_skills).pack(pady=10)
-    tk.Button(root, text="Gestionar Contacto", width=30, height=2, command=btn_contact).pack(pady=10)
-    tk.Button(root, text="Gestionar Colores 🎨", width=30, height=2, command=btn_colors, bg="#6dd3ff", fg="black", font=("Arial", 10, "bold")).pack(pady=10)
-    tk.Button(root, text="Salir", width=15, height=1, command=root.quit).pack(pady=20)
-    
+    root.title("PORTFOLIO MANAGER v3")
+    root.geometry("400x480")
+    tk.Label(root, text="PORTFOLIO MANAGER v3", font=("Arial", 18, "bold")).pack(pady=20)
+
+    def run(fn, uses_data=True):
+        if uses_data:
+            d = load_data()
+            if d: fn(d)
+        else:
+            fn()
+
+    for text, cmd in [
+        ("Gestionar Proyectos",     lambda: run(manage_projects)),
+        ("Editar Textos Generales", lambda: run(manage_general)),
+        ("Gestionar Skills",        lambda: run(manage_skills)),
+        ("Gestionar Contacto",      lambda: run(manage_contact)),
+        ("Gestionar Colores",       lambda: run(manage_colors, uses_data=False)),
+    ]:
+        tk.Button(root, text=text, width=32, height=2, command=cmd).pack(pady=6)
+
+    tk.Button(root, text="Salir", width=15, command=root.quit).pack(pady=16)
     root.mainloop()
 
 if __name__ == "__main__":
