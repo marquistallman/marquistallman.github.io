@@ -1,48 +1,35 @@
-import { useState, useCallback } from 'react'
+﻿const GROUPS = [
+  { key: "backend", label: "Backend",          dot: "blue"  },
+  { key: "systems", label: "Systems & DevOps", dot: "green" },
+  { key: "tools",   label: "Tools & Misc",     dot: "red"   },
+]
 
 export default function Skills({ skills }) {
-  const [preview, setPreview] = useState(null)
-  const [pos, setPos]         = useState({ top: 0, left: 0 })
-
-  const handleEnter = useCallback((skill, e) => {
-    if (!skill.img) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    setPos({
-      top:  rect.top  - 212,
-      left: Math.max(8, rect.left + rect.width / 2 - 150),
-    })
-    setPreview(skill)
-  }, [])
-
   return (
-    <section id="skills">
-      <h3 className="section-title">Skills</h3>
-      <div className="chips">
-        {skills.map(s => (
-          <span
-            key={s.name}
-            className="chip"
-            title={s.name}
-            onMouseEnter={e => handleEnter(s, e)}
-            onMouseLeave={() => setPreview(null)}
-          >
-            {s.name}
-          </span>
-        ))}
-      </div>
-
-      {preview && (
-        <div
-          className="skill-preview visible"
-          style={{ position: 'fixed', top: pos.top, left: pos.left, pointerEvents: 'none' }}
-        >
-          <img src={preview.img} alt="skill preview" />
-          <div className="caption">
-            <div className="title">{preview.name}</div>
-            <div className="desc">{preview.desc}</div>
-          </div>
+    <section className="section" id="skills">
+      <div className="container">
+        <div className="section-header">
+          <span className="section-num">04</span>
+          <span className="section-label">skills</span>
+          <span className="section-title">Stack & Tooling</span>
+          <span className="section-sep" />
         </div>
-      )}
+        <div className="skills-grid">
+          {GROUPS.map(g => (
+            <div className="skill-group" key={g.key}>
+              <div className="skill-group-header">
+                <span className={`skill-dot ${g.dot}`} />
+                <span className="skill-group-name">{g.label}</span>
+              </div>
+              <div className="skill-group-body">
+                {(skills[g.key] || []).map(s => (
+                  <span key={s} className={`skill-tag skill-tag--${g.dot}`}>{s}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   )
 }

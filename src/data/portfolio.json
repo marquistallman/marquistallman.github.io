@@ -1,83 +1,110 @@
-{
+﻿{
   "header": {
-    "name": "David Ricardo Nuñez",
-    "subtitle": "Developer • Blockchain • Tools & Art",
+    "name": "David Nunez",
+    "role": "Systems & Backend Developer",
     "avatar": "img/img1.jpeg"
   },
   "hero": {
-    "title": "I'm a real tool maker and artist",
-    "description": "Minecraft Launcher, a file blockchain, tools on Python and art proyects. Repos in",
+    "headline": "Building systems that don't break.",
+    "subheadline": "Backend  *  Tooling  *  Systems Programming",
+    "description": "Systems engineering student focused on backend architecture, CLI tooling and distributed systems. I build things from scratch and make them work.",
+    "stack": ["Python", "C#", "Java", "Linux", "Docker"],
     "githubUrl": "https://github.com/marquistallman",
+    "email": "daviricanun@gmail.com"
+  },
+  "about": {
+    "bio": "Systems Engineering student with hands-on experience in backend development and CLI tooling. I'm driven by the challenge of building software that works reliably — from architecture to packaging and deployment. Code is not art, but art can be made with code.",
+    "interests": ["Distributed systems", "Backend architecture", "CLI tooling", "AI integration", "Blockchain"],
+    "name": "David Ricardo Nunez Bernal",
     "email": "daviricanun@gmail.com",
-    "image": "img/img7.jpeg"
+    "social": "@marquistallman"
   },
   "projects": [
     {
       "id": 1,
-      "title": "Minecraft Launcher (Python)",
-      "description": "Minecraft Launcher with version installer (Vanilla, Forge, Fabric), porfiles and version manager.",
-      "tags": "Python, UI, installer",
+      "title": "OpenLauncher",
+      "tagline": "Fully-featured Minecraft launcher with modloader support",
+      "problem": "Existing launchers lack fine-grained version control and modloader management in a single, portable tool.",
+      "solution": "Built a self-contained Python launcher with installer logic for Vanilla, Forge and Fabric, profile management and version switching.",
+      "stack": ["Python", "UI/Tkinter", "Installer", "JSON"],
+      "keyDecisions": ["Stateless profile system using JSON manifests", "Modular installer pipeline per loader type", "Portable distribution without system-wide dependencies"],
       "image": "img/img4.jpeg",
       "repo": "https://github.com/marquistallman/OpenLauncherProyect.git",
       "demo": ""
     },
     {
       "id": 2,
-      "title": "A File Blockchain (C#)",
-      "description": "This block chain encrypts, saves and restores files, splits the logic betwen users and miners.",
-      "tags": "C#, criptography, networks",
+      "title": "OpenCloud — File Blockchain",
+      "tagline": "Decentralized file storage with cryptographic integrity",
+      "problem": "Centralized cloud storage depends on trust. Files can be modified or deleted without the user knowing.",
+      "solution": "Implemented a blockchain-based file storage system in C# that splits responsibility between users and miners using AES encryption and hash chaining.",
+      "stack": ["C#", "Cryptography", "Networking", "Blockchain"],
+      "keyDecisions": ["Separation of user/miner roles for decentralization", "Hash chaining for tamper detection", "AES-256 encryption before block insertion"],
       "image": "img/img2.jpg",
       "repo": "https://github.com/marquistallman/OpenCloudProyect",
       "demo": ""
     },
     {
       "id": 3,
-      "title": "Pixel-Kinesis (Java)",
-      "description": "Planed to be the LaTex for Grafics and animations.",
-      "tags": "Java, Grafics, Animations",
-      "image": "img/img5.png",
-      "repo": "https://github.com/marquistallman/-Pixel-Kinesis.git",
-      "demo": ""
-    },
-    {
-      "id": 4,
       "title": "Persepolis",
-      "description": "Buscador Web especializado en wallpapers que scrapea en mas de 9 sitios diferentes",
-      "tags": "Java, Springboot, AI, Linux",
+      "tagline": "Multi-source wallpaper search engine with AI categorization",
+      "problem": "Finding high-quality wallpapers requires visiting multiple sites manually with no unified interface.",
+      "solution": "Built a Java/Spring Boot web app that scrapes 9+ sources concurrently with AI-assisted tagging and a clean browsing UI.",
+      "stack": ["Java", "Spring Boot", "AI", "Linux", "Web Scraping"],
+      "keyDecisions": ["Concurrent scraping with thread pools", "AI model integration for tag classification", "Linux server deployment with reverse proxy"],
       "image": "img/persepolis.png",
       "repo": "https://github.com/marquistallman/Persepolis.git",
       "demo": "https://persepoliasia.lat/Pages/browse.html"
     },
     {
-      "id": 5,
-      "title": "Doesn't Break Things (DBT)",
-      "description": "Sistema basado en Claude Code para uso de modelos locales, fuertemente apoyado en ollama",
-      "tags": "C#, IA, API, ollama",
+      "id": 4,
+      "title": "DBT — Doesn't Break Things",
+      "tagline": "Local AI coding assistant powered by Ollama",
+      "problem": "Cloud-based AI coding tools require internet and send code to third-party servers — a problem for offline or sensitive projects.",
+      "solution": "Implemented a Claude Code-inspired system using local Ollama models, giving full AI coding assistance without external dependencies.",
+      "stack": ["C#", "AI", "Ollama", "REST API"],
+      "keyDecisions": ["Model-agnostic interface for any Ollama model", "Local context management to fit model window", "CLI-first design for scripting integration"],
       "image": "img/ollama-tool.png",
       "repo": "https://github.com/marquistallman/Doesn-t-Break-Things.git",
       "demo": ""
+    },
+    {
+      "id": 5,
+      "title": "Pixel-Kinesis",
+      "tagline": "A declarative DSL for graphics and animations",
+      "problem": "Creating programmatic animations requires low-level graphics code or heavy frameworks with no clean abstraction layer.",
+      "solution": "Designing a declarative Java-based DSL that compiles animation descriptions into rendered output, inspired by LaTeX.",
+      "stack": ["Java", "Graphics", "DSL", "Animations"],
+      "keyDecisions": ["AST-based DSL parser for animation composition", "Renderer abstraction layer for multiple backends", "Composable animation primitives"],
+      "image": "img/img5.png",
+      "repo": "https://github.com/marquistallman/-Pixel-Kinesis.git",
+      "demo": ""
     }
   ],
-  "about": {
-    "bio": "I'm Systems Engeniering student with experience working on python and C#. I like to create solutions, and for that I manage from arquitecture to package and installers. Code is not an art, but the art can be made by code.",
-    "name": "David Ricardo Núñez Bernal",
-    "email": "daviricanun@gmail.com",
-    "social": "@marquistallman",
-    "searching": "Learn about code models, IA, and real life aplication problems."
-  },
-  "skills": [
-    { "name": "Python",            "desc": "Projects, automation and data tools.",      "img": "img/images.png"      },
-    { "name": "Vibe Code",         "desc": "Personal tooling and creative experiments.", "img": "img/vibeCode.jpg"    },
-    { "name": "Linux / CLI",       "desc": "Shell scripts, servers and CLI workflows.", "img": "img/Linux.jpg"       },
-    { "name": "Git & GitHub",      "desc": "Version control, CI and repo management.",  "img": "img/github.png"      },
-    { "name": "UI",                "desc": "GUI apps and custom widgets.",               "img": "img/UI.jpg"          },
-    { "name": "criptography basic","desc": "Hashes, AES and basic encryption.",          "img": "img/criptografia.jpg"},
-    { "name": "C#",                "desc": ".Net Language used in mobile and games",    "img": "img/images.jpg"      },
-    { "name": "Java",              "desc": "Code once, run everywhere",                  "img": "img/java.png"        }
+  "experiments": [
+    {
+      "id": 1,
+      "title": "Distributed task queue",
+      "description": "Exploring minimal distributed queue design without external brokers. Pure TCP + JSON protocol.",
+      "status": "in-progress",
+      "stack": ["Python", "Networking", "Concurrency"]
+    },
+    {
+      "id": 2,
+      "title": "Zero-dependency static site generator",
+      "description": "A minimal tool that compiles Markdown + templates to HTML with focus on build speed and portability.",
+      "status": "exploring",
+      "stack": ["Python", "Markdown", "Templating"]
+    }
   ],
+  "skills": {
+    "backend": ["Python", "C#", "Java", "REST APIs", "Spring Boot", "JSON/APIs"],
+    "systems": ["Linux/CLI", "Cryptography", "Networking", "Git", "Docker", "Blockchain"],
+    "tools": ["Tkinter UI", "Ollama/AI", "Web Scraping", "Installers", "CI/CD", "Vite/React"]
+  },
   "contact": [
-    { "label": "📧 daviricanun@gmail.com",    "href": "mailto:daviricanun@gmail.com"          },
-    { "label": "🐙 GitHub /marquistallman",   "href": "https://github.com/marquistallman"     },
-    { "label": "💬 Discord: marquistallman",  "href": "https://discord.com/users/marquistallman" }
+    { "label": "daviricanun@gmail.com", "href": "mailto:daviricanun@gmail.com", "icon": "email" },
+    { "label": "github.com/marquistallman", "href": "https://github.com/marquistallman", "icon": "github" },
+    { "label": "Discord: @marquistallman", "href": "https://discord.com/users/marquistallman", "icon": "discord" }
   ]
 }
